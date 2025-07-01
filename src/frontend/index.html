@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Processing API</title>
+    <style>
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+      }
+      .gallery img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+      }
+    </style>
+  </head>
+  <body>
+    <form
+    id="uploadForm"
+      action="/upload"
+      method="post"
+      enctype="multipart/form-data"
+      target="_blank"
+      >
+      <label for="fileName">Image Name</label>
+      <input
+      id="fileName"
+      name="file"
+      type="file"
+      accept=".jpg,.png,.jpeg"
+      placeholder="File Name"
+      />
+      <input type="number" name="width" placeholder="width" />
+      <input type="number" name="height" placeholder="height" />
+      <input type="submit" id="submit"/>
+    </form>
+
+    <div id="gallery" class="gallery"></div>
+    <script>
+  // Function to fetch and render gallery images
+  function loadGallery() {
+    console.log();
+    
+    fetch("/api/images")
+      .then((res) => res.json())
+      .then((imagePaths) => {
+        console.log(imagePaths);
+        const gallery = document.getElementById("gallery");
+        gallery.innerHTML = "";
+        imagePaths.forEach((path) => {
+          const img = document.createElement("img");
+          img.src = path;
+          img.alt = "Gallery Image";
+          img.style.cursor = "pointer";
+
+          gallery.appendChild(img);
+
+          img.addEventListener("click", () => {
+            const width = document.querySelector('input[name="width"]').value;
+            const height = document.querySelector('input[name="height"]').value;
+
+            if (!width || !height) {
+              alert("Please enter both width and height.");
+              return;
+            } else {
+              img.style.width = `${width}px`;
+              img.style.height = `${height}px`;
+            }
+          });
+        });
+      });
+    }
+
+    // Run on page load
+    document.addEventListener("DOMContentLoaded", () => {
+      loadGallery();
+    });
+
+    const form = document.getElementById("uploadForm");
+
+    form.addEventListener("submit", async (event) => {
+  event.preventDefault(); // Prevent default form submission
+
+  const formData = new FormData(form);
+
+  try {
+    const response = await fetch("/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      alert("Upload failed: " + error);
+      return;
+    }
+
+    alert("Upload successful!");
+    loadGallery(); // Reload gallery after upload
+
+    const result = await response.json();
+    window.open(result.resizedImageUrl, "_blank");
+
+    // Optionally, reset form inputs after upload
+    form.reset();
+
+  } catch (err) {
+    alert("Error uploading file: " + err.message);
+  }
+});
+
+
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetch("/api/images")
+        .then((res) => res.json())
+        .then((imagePaths) => {
+          const gallery = document.getElementById("gallery");
+          gallery.innerHTML = "";
+
+          imagePaths.forEach((path) => {
+            const img = document.createElement("img");
+            img.src = path;
+            img.alt = "Gallery Image";
+            img.style.cursor = "pointer";
+            gallery.appendChild(img);
+            
+        img.addEventListener("click", () => {
+          const imageName = path;
+          const width = document.querySelector('input[name="width"]').value;
+          const height = document.querySelector('input[name="height"]').value;
+
+          if (!width || !height) {
+            alert("Please enter both width and height.");
+            return;
+          } else {
+            img.style.width = `${width}px`;
+            img.style.height = `${height}px`;
+          }
+        });
+
+      });
+    });
+  });
+</script>
+
+
+ </body>
+ </html>
