@@ -2,8 +2,8 @@
 
 1. **Clone the Repository**
    ```
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone https://github.com/Ahmed-Nehad/image-resizer-project.git
+   cd image-resizer-project
    ```
 
 2. **Install Dependencies**
